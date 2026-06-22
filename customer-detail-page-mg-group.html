@@ -129,12 +129,6 @@
   flex-shrink: 0;
 }
 
-.list-item[data-address-type="property"] {
-  display: none;
-}
-.ship-address-list.show-all .list-item[data-address-type="property"] {
-  display: flex;
-}
 .addr-property-tag {
   flex-shrink: 0;
   font-size: 10px;
@@ -233,6 +227,7 @@
                 <div class="acct-tags type-body-sm">
                   <span class="pill">Management Group</span>
                   <span class="pill">60 Properties</span>
+                  <span class="pill" id="menumaker-pill" style="display:none">Menumaker Customer</span>
                 </div>
               </div>
 
@@ -341,6 +336,7 @@
                   </button>
                 </div>
               </div>
+              <div class="contact-detail-body">
               <div class="contact-fields type-body-sm">
                 <div class="contact-field">
                   <div class="field-label semibold uppercase">
@@ -388,6 +384,7 @@
                   </button>
                 </div>
               </div>
+              </div>
             </div>
 
             <!-- Person Contact Detail -->
@@ -412,6 +409,7 @@
                   </button>
                 </div>
               </div>
+              <div class="contact-detail-body">
               <div class="contact-fields type-body-sm">
                 <div class="contact-field">
                   <div class="field-label semibold uppercase">
@@ -467,12 +465,31 @@
                     4001 Maple Ave, Dallas, TX 75219
                   </div>
                   <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
-                    <i class="fa-regular fa-trash-can"></i>
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+                <div class="contact-field" id="menumaker-field" hidden>
+                  <div class="field-label semibold uppercase">
+                    <i class="fa-regular fa-book-open"></i>
+                    Menumaker Login
+                  </div>
+                  <div class="field-value">
+                    Username: cfontaine_mm, Password: mm_pass456
+                    <button class="icon-btn" title="Copy" onclick="copyText('Username: cfontaine_mm, Password: mm_pass456')">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                    <button class="icon-btn" title="Send to customer" onclick="openEmailPreview('cfontaine@omnihotels.com', 'cfontaine_mm', 'mm_pass456')">
+                      <i class="fa-regular fa-paper-plane"></i>
+                    </button>
+                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
               </div>
               <div class="notes-area type-body-sm">
                 <span>No notes yet</span>
+              </div>
               </div>
             </div>
         </div>
@@ -555,7 +572,7 @@
                     <button class="icon-btn" title="Delete Address"><i class="fa-solid fa-trash-can"></i></button>
                   </div>
                 </div>
-                <div class="list-item" data-address-type="property">
+                <div class="list-item" data-address-type="property" hidden>
                   <input type="checkbox" class="item-cb">
                   <span class="addr-property-tag">Omni Nashville Hotel</span>
                   <div class="list-item-name">Main Entrance</div>
@@ -565,7 +582,7 @@
                     <button class="icon-btn" title="Delete Address"><i class="fa-solid fa-trash-can"></i></button>
                   </div>
                 </div>
-                <div class="list-item" data-address-type="property">
+                <div class="list-item" data-address-type="property" hidden>
                   <input type="checkbox" class="item-cb">
                   <span class="addr-property-tag">Omni Dallas Hotel</span>
                   <div class="list-item-name">Main Entrance</div>
@@ -575,7 +592,7 @@
                     <button class="icon-btn" title="Delete Address"><i class="fa-solid fa-trash-can"></i></button>
                   </div>
                 </div>
-                <div class="list-item" data-address-type="property">
+                <div class="list-item" data-address-type="property" hidden>
                   <input type="checkbox" class="item-cb">
                   <span class="addr-property-tag">Omni Atlanta Hotel</span>
                   <div class="list-item-name">Receiving Dock</div>
@@ -585,7 +602,7 @@
                     <button class="icon-btn" title="Delete Address"><i class="fa-solid fa-trash-can"></i></button>
                   </div>
                 </div>
-                <div class="list-item" data-address-type="property">
+                <div class="list-item" data-address-type="property" hidden>
                   <input type="checkbox" class="item-cb">
                   <span class="addr-property-tag">Omni Chicago Hotel</span>
                   <div class="list-item-name">Main Entrance</div>
@@ -821,8 +838,8 @@
               <span class="toggle-label">Active Customer</span>
               <div class="toggle"></div>
             </div>
-            <div class="toggle-row" onclick="this.classList.toggle('on')">
-              <span class="toggle-label">Broker</span>
+            <div class="toggle-row" id="menumaker-toggle" onclick="toggleMenumaker(this)">
+              <span class="toggle-label">Show Menumaker Logins</span>
               <div class="toggle"></div>
             </div>
           </div>
@@ -1050,6 +1067,22 @@
             </select>
           </div>
 
+          <div class="sub-section" id="menumaker-section" style="display:none">
+            <div class="sub-section-header">
+              <span>MENUMAKER LOGIN</span>
+            </div>
+            <div class="input-row" style="margin-bottom: 8px; gap: 12px">
+              <div class="form-group" style="flex: 1">
+                <label class="form-label">Username</label>
+                <input class="form-input" id="mm-username" placeholder="Username" />
+              </div>
+              <div class="form-group" style="flex: 1">
+                <label class="form-label">Password</label>
+                <input class="form-input" id="mm-password" placeholder="Password" />
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Notes</label>
             <textarea
@@ -1243,6 +1276,39 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════
+     MODAL: Email Preview
+══════════════════════════════════════════════════ -->
+    <div
+      class="modal-overlay"
+      id="modal-emailPreview"
+      onclick="handleOverlayClick(event, 'emailPreview')"
+    >
+      <div class="modal-panel">
+        <div class="modal-header">
+          <span class="modal-title">Email Preview</span>
+          <button class="modal-close" onclick="closeModal('emailPreview')">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">To</label>
+            <input class="form-input" id="email-preview-to" readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <input class="form-input" value="Your Menumaker Login Information" readonly />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea class="form-input" id="email-preview-body" rows="5" readonly style="resize:none; font-family: monospace; font-size: 13px"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="submit-btn" onclick="submitModal('emailPreview')">SEND EMAIL</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast notification -->
     <div class="toast" id="toast"></div>
 
@@ -1357,8 +1423,39 @@
           addContact: "New contact added",
           addAddress: "New address added",
           editShippingAccount: "Shipping account saved",
+          emailPreview: "Email sent",
         };
         showToast(messages[id] || "Changes saved");
+      }
+      // ── Visibility utility ──
+      // Stamps .last-visible on the last non-hidden child matching selector.
+      function updateLastVisible(container, selector) {
+        if (!container) return;
+        const items = Array.from(container.querySelectorAll(selector));
+        items.forEach(el => el.classList.remove('last-visible'));
+        const last = items.filter(el => !el.hidden).at(-1);
+        if (last) last.classList.add('last-visible');
+      }
+
+      function toggleMenumaker(row) {
+        row.classList.toggle('on');
+        const on = row.classList.contains('on');
+        const pill = document.getElementById('menumaker-pill');
+        if (pill) pill.hidden = !on;
+        const section = document.getElementById('menumaker-section');
+        if (section) section.hidden = !on;
+        const field = document.getElementById('menumaker-field');
+        if (field) field.hidden = !on;
+        // Re-stamp last-visible on contact fields after menumaker visibility change
+        document.querySelectorAll('.contact-fields').forEach(c =>
+          updateLastVisible(c, '.contact-field')
+        );
+      }
+      function openEmailPreview(email, username, password) {
+        document.getElementById('email-preview-to').value = email;
+        document.getElementById('email-preview-body').value =
+          'Username: ' + username + '\nPassword: ' + password;
+        openModal('emailPreview');
       }
       function showToast(msg) {
         const t = document.getElementById("toast");
@@ -1527,13 +1624,15 @@
 
         if (filterSelect) {
           filterSelect.addEventListener('change', () => {
-            addrList.classList.toggle('show-all', filterSelect.value === 'all');
-            // Uncheck hidden items so they don't skew counts
-            addrList.querySelectorAll('.list-item[data-address-type="property"] .item-cb').forEach(cb => {
-              if (!addrList.classList.contains('show-all')) cb.checked = false;
+            const showAll = filterSelect.value === 'all';
+            addrList.querySelectorAll('.list-item[data-address-type="property"]').forEach(item => {
+              item.hidden = !showAll;
+              // Uncheck items being hidden so they don't skew counts
+              if (!showAll) item.querySelector('.item-cb').checked = false;
             });
             updateListState(addrList);
             updateBadge();
+            updateLastVisible(addrList.querySelector('.list-items'), '.list-item');
           });
         }
 
@@ -1552,6 +1651,14 @@
           });
         }
       });
+
+      // ── Initialize last-visible on page load ──
+      document.querySelectorAll('.search-list .list-items').forEach(c =>
+        updateLastVisible(c, '.list-item')
+      );
+      document.querySelectorAll('.contact-fields').forEach(c =>
+        updateLastVisible(c, '.contact-field')
+      );
 
     </script>
     <script src="feedback-flyout.js"></script>

@@ -459,6 +459,11 @@ body {
 .contact-detail {
   padding: 0;
   flex: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  
 }
 .contact-detail-header {
   padding: 14px 20px;
@@ -466,6 +471,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
+}
+.contact-detail-body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding-right: 4px;
+  border-right: solid 4px white;
 }
 .contact-detail-name {
   font-size: 15px;
@@ -487,7 +500,16 @@ body {
   border-bottom: 1px solid var(--border-subtle);
   gap: 16px;
   background-color: var(--bg-surface);
+  border-right: solid 1px var(--border-subtle);
 }
+.contact-field.last-visible {
+  border-radius: 0px 0px 16px 0px;
+}
+.list-item.last-visible {
+  border-radius: 0px 0px 16px 0px;
+  margin-bottom: 8px;
+}
+
 .remove-field-btn {
   opacity: 0;
   transition: opacity 0.15s;
@@ -520,6 +542,7 @@ body {
 }
 .notes-area {
   margin: 16px;
+  margin-right: 0;
   border: 1.5px solid var(--border-subtle);
   border-radius: 6px;
   padding: 10px 12px;
@@ -1065,6 +1088,11 @@ body {
 .topbar:has(.hidden) #search-btn{
   opacity: 100%;
 }
+
+/* ── VISIBILITY UTILITY ── */
+/* Used by updateLastVisible() to track the last non-hidden item in a list.
+   Must use !important to win over display:flex/grid on list-item/contact-field. */
+[hidden] { display: none !important; }
 
 /*action buttons*/
 .action-container{
