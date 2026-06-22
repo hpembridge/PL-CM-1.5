@@ -105,7 +105,13 @@
               </div>
               <div class="list-items">
                 <div
-                  class="list-item active"
+                  class="list-item general-contact active"
+                  onclick="selectGeneralContact(this)"
+                >
+                  <div class="list-item-name">General Contact Information</div>
+                </div>
+                <div
+                  class="list-item"
                   onclick="selectContact(this)"
                 >
                   <input type="checkbox" class="item-cb" onclick="event.stopPropagation()">
@@ -157,8 +163,69 @@
               </div>
             </div>
 
-            <!-- Contact Detail -->
-            <div class="contact-detail">
+            <!-- General Contact Detail -->
+            <div class="contact-detail general-contact-detail" id="general-contact-detail">
+              <div class="contact-detail-header">
+                <div>
+                  <span class="contact-detail-name type-body-md semibold">General Contact Information</span>
+                </div>
+                <div class="contact-actions">
+                  <button class="icon-btn" onclick="openModal('addContact')" title="Edit General Info">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="contact-fields type-body-sm">
+                <div class="contact-field">
+                  <div class="field-label semibold uppercase">
+                    <i class="fa-regular fa-phone"></i>
+                    Main Phone
+                  </div>
+                  <div class="field-value">
+                    (216) 555-0200
+                    <button class="icon-btn" title="Copy" onclick="copyText('(216) 555-0200')">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+                <div class="contact-field">
+                  <div class="field-label semibold uppercase">
+                    <i class="fa-regular fa-phone"></i>
+                    Main Fax
+                  </div>
+                  <div class="field-value">
+                    (216) 555-0299
+                    <button class="icon-btn" title="Copy" onclick="copyText('(216) 555-0299')">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+                <div class="contact-field">
+                  <div class="field-label semibold uppercase">
+                    <i class="fa-regular fa-globe"></i>
+                    Website
+                  </div>
+                  <div class="field-value">
+                    <a href="#" class="type-body-sm">marriott.com/hotels/travel/cledi</a>
+                    <button class="icon-btn" title="Copy" onclick="copyText('marriott.com/hotels/travel/cledi')">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Person Contact Detail -->
+            <div class="contact-detail" id="person-contact-detail" style="display:none">
               <div class="contact-detail-header">
                 <div>
                   <span class="contact-detail-name type-body-md semibold">Diane Kovach</span>
@@ -934,6 +1001,16 @@
           .querySelectorAll(".list-item")
           .forEach((i) => i.classList.remove("active"));
         el.classList.add("active");
+        document.getElementById("general-contact-detail").style.display = "none";
+        document.getElementById("person-contact-detail").style.display = "";
+      }
+      function selectGeneralContact(el) {
+        document
+          .querySelectorAll(".list-item")
+          .forEach((i) => i.classList.remove("active"));
+        el.classList.add("active");
+        document.getElementById("general-contact-detail").style.display = "";
+        document.getElementById("person-contact-detail").style.display = "none";
       }
       function selectSegment(btn) {
         btn

@@ -24,11 +24,11 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9000;
+      z-index: 100;
       transition: transform 0.2s ease, background 0.2s ease;
       outline: none;
     }
-    #fbk-btn:hover { transform: scale(1.07); }
+    #fbk-btn:hover { transform: scale(1.07);cursor: pointer }
     #fbk-btn i { font-size: 24px; }
     #fbk-overlay {
       position: fixed;
@@ -74,7 +74,7 @@
   // ── HTML ────────────────────────────────────────────────────────────────────
   const html = `
     <button id="fbk-btn" title="Share feedback" aria-label="Open feedback form">
-      <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+      <i class="fa-regular fa-comment-question" aria-hidden="true"></i>
     </button>
     <div id="fbk-overlay"></div>
     <div id="fbk-panel" role="dialog" aria-modal="true" aria-label="Feedback form">
