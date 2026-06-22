@@ -460,18 +460,19 @@ body {
 }
 .contact-field {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: 180px 1fr auto;
   align-items: center;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border-subtle);
   gap: 16px;
   background-color: var(--bg-surface);
 }
-.preferred.contact-field{
-  background-color: var(--status-info-bg);
+.remove-field-btn {
+  opacity: 0;
+  transition: opacity 0.15s;
 }
-.preferred .field-label{
-  color: var(--status-info-border);
+.contact-field:hover .remove-field-btn {
+  opacity: 1;
 }
 .field-label {
   display: flex;

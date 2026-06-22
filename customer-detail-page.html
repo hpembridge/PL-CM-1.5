@@ -69,7 +69,6 @@
                 <div class="acct-tags type-body-sm">
                   <span class="pill">Hotel</span>
                   <span class="pill">354 Rooms</span>
-                  <span class="pill">Managed by Broker</span>
                 </div>
               </div>
 
@@ -181,62 +180,62 @@
                 </div>
               </div>
               <div class="contact-fields type-body-sm">
-                <div class="preferred contact-field ">
+                <div class="contact-field">
                   <div class="field-label semibold uppercase">
                     <i class="fa-regular fa-envelope"></i>
-                    Main Email
+                    Email
                   </div>
                   <div class="field-value">
                     dkovach@marriottcle.com
-                    <button
-                      class="icon-btn"
-                      title="Copy"
-                      onclick="copyText('dkovach@marriottcle.com')"
-                    >
+                    <button class="icon-btn" title="Copy" onclick="copyText('dkovach@marriottcle.com')">
                       <i class="fa-regular fa-copy"></i>
                     </button>
                   </div>
-                </div>
-                <div class="contact-field preferred">
-                  <div class="field-label semibold uppercase">
-                    <i class="fa-regular fa-phone"></i>
-                    Cell Phone
-                  </div>
-                  <div class="field-value ">
-                    (216) 555-9847
-                    <button
-                      class="icon-btn"
-                      title="Copy"
-                      onclick="copyText('(216) 555-9847')"
-                    >
-                      <i class="fa-regular fa-copy"></i>
-                    </button>
-                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
                 </div>
                 <div class="contact-field">
                   <div class="field-label semibold uppercase">
                     <i class="fa-regular fa-phone"></i>
-                    Office Phone
+                    Mobile Phone
                   </div>
                   <div class="field-value">
-                    (216) 555-0201 x201
-                    <button
-                      class="icon-btn"
-                      title="Copy"
-                      onclick="copyText('(216) 555-0201 x201')"
-                    >
+                    (216) 555-9847
+                    <button class="icon-btn" title="Copy" onclick="copyText('(216) 555-9847')">
                       <i class="fa-regular fa-copy"></i>
                     </button>
                   </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
+                <div class="contact-field">
+                  <div class="field-label semibold uppercase">
+                    <i class="fa-regular fa-phone"></i>
+                    Work Phone
+                  </div>
+                  <div class="field-value">
+                    (216) 555-0201 x201
+                    <button class="icon-btn" title="Copy" onclick="copyText('(216) 555-0201 x201')">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
                 </div>
                 <div class="contact-field">
                   <div class="field-label semibold uppercase">
                     <i class="fa-regular fa-location-dot"></i>
-                    Office Address
+                    Main Entrance
                   </div>
                   <div class="field-value">
-                    Main Entrance — 127 Public Square, Cleveland, OH 44114
+                    127 Public Square, Cleveland, OH 44114
                   </div>
+                  <button class="icon-btn remove-field-btn" title="Remove" onclick="this.closest('.contact-field').remove()">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
                 </div>
               </div>
               <div class="notes-area type-body-sm">
@@ -393,7 +392,7 @@
               <div class="toggle"></div>
             </div>
             <div class="toggle-row" onclick="this.classList.toggle('on')">
-              <span class="toggle-label">Managed by Broker</span>
+              <span class="toggle-label">Broker</span>
               <div class="toggle"></div>
             </div>
           </div>
@@ -567,88 +566,66 @@
             <div class="toggle"></div>
           </div>
 
-          <div class="sub-section">
+          <div class="sub-section" id="contact-email-section">
             <div class="sub-section-header">
               <span>EMAIL(S)</span>
-              <span>Primary</span>
             </div>
-            <div class="input-row" style="margin-bottom: 8px">
-              <div class="form-group" style="flex: 0.6">
-                <label class="form-label">Description</label>
-                <input class="form-input" placeholder="Main, etc…" />
-              </div>
-              <div class="form-group" style="flex: 1">
-                <label class="form-label">Email</label>
-                <input
-                  class="form-input"
-                  type="email"
-                  placeholder="name@company.com"
-                />
-              </div>
-              <div style="padding-bottom: 8px">
-                <div class="radio-btn selected"></div>
+            <div id="contact-email-rows">
+              <div class="input-row contact-method-row" style="margin-bottom: 8px">
+                <div class="form-group" style="flex: 0.6">
+                  <label class="form-label">Description</label>
+                  <select class="form-select" disabled>
+                    <option>Email</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1">
+                  <label class="form-label">Email</label>
+                  <input class="form-input" type="email" placeholder="name@company.com" />
+                </div>
+                <div style="display: flex; align-items: flex-end; padding-bottom: 2px">
+                  <button class="icon-btn" title="Remove" onclick="removeContactMethodRow(this)">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
               </div>
             </div>
-            <a class="add-link">+ Add Email</a>
+            <a class="add-link" onclick="addContactMethod('email')">+ Add Email</a>
           </div>
 
-          <div class="sub-section">
+          <div class="sub-section" id="contact-phone-section">
             <div class="sub-section-header">
               <span>PHONE NUMBER(S)</span>
-              <span>Primary</span>
             </div>
-            <div class="input-row" style="margin-bottom: 8px">
-              <div class="form-group" style="flex: 0.6">
-                <label class="form-label">Description</label>
-                <input class="form-input" placeholder="Main, etc…" />
-              </div>
-              <div class="form-group" style="flex: 1">
-                <label class="form-label">Number</label>
-                <input
-                  class="form-input"
-                  type="tel"
-                  placeholder="(000) 000-0000"
-                />
-              </div>
-              <div style="padding-bottom: 8px">
-                <div class="radio-btn selected"></div>
+            <div id="contact-phone-rows">
+              <div class="input-row contact-method-row" style="margin-bottom: 8px">
+                <div class="form-group" style="flex: 0.6">
+                  <label class="form-label">Description</label>
+                  <select class="form-select">
+                    <option>Work</option>
+                    <option>Home</option>
+                    <option>Mobile</option>
+                    <option>Fax</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex: 1">
+                  <label class="form-label">Number</label>
+                  <input class="form-input" type="tel" placeholder="(000) 000-0000" />
+                </div>
+                <div style="display: flex; align-items: flex-end; padding-bottom: 2px">
+                  <button class="icon-btn" title="Remove" onclick="removeContactMethodRow(this)">
+                    <i class="fa-regular fa-trash-can"></i>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="input-row" style="margin-bottom: 8px">
-              <div class="form-group" style="flex: 0.6">
-                <input class="form-input" placeholder="Main, etc…" />
-              </div>
-              <div class="form-group" style="flex: 1">
-                <input
-                  class="form-input"
-                  type="tel"
-                  placeholder="(000) 000-0000"
-                />
-              </div>
-              <div><div class="radio-btn"></div></div>
-            </div>
-            <a class="add-link">+ Add Phone</a>
+            <a class="add-link" onclick="addContactMethod('phone')">+ Add Phone</a>
           </div>
 
-          <div class="sub-section">
-            <div class="sub-section-header">
-              <span>ADDRESS(S)</span>
-              <span>Primary</span>
-            </div>
-            <div class="input-row" style="margin-bottom: 8px">
-              <div class="form-group" style="flex: 0.6">
-                <label class="form-label">Description</label>
-                <input class="form-input" placeholder="Main, etc…" />
-              </div>
-              <div class="form-group" style="flex: 1">
-                <label class="form-label">Address</label>
-                <input class="form-input" placeholder="Search addresses…" />
-              </div>
-              <div style="padding-bottom: 8px">
-                <div class="radio-btn selected"></div>
-              </div>
-            </div>
-            <a class="add-link">+ Add Address</a>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <select class="form-select" id="contact-address-select">
+              <option value="">Select an address…</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -901,8 +878,26 @@
       }
 
       function openModal(id) {
+        if (id === 'addContact') populateContactAddressDropdown();
         document.getElementById("modal-" + id).classList.add("open");
         document.body.style.overflow = "hidden";
+      }
+      function populateContactAddressDropdown() {
+        const select = document.getElementById('contact-address-select');
+        if (!select) return;
+        const current = select.value;
+        select.innerHTML = '<option value="">Select an address…</option>';
+        document.querySelectorAll('.ship-address-list .list-item').forEach(item => {
+          const name = item.querySelector('.list-item-name')?.textContent.trim();
+          const value = item.querySelector('.list-item-value')?.textContent.trim();
+          if (name && value) {
+            const opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = name + ' — ' + value;
+            select.appendChild(opt);
+          }
+        });
+        select.value = current;
       }
       function closeModal(id) {
         document.getElementById("modal-" + id).classList.remove("open");
@@ -946,6 +941,71 @@
           .querySelectorAll(".segment-btn")
           .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
+      }
+
+      const CONTACT_METHOD_MAX = 6;
+      function addContactMethod(type) {
+        const emailRows = document.getElementById('contact-email-rows');
+        const phoneRows = document.getElementById('contact-phone-rows');
+        const total = emailRows.querySelectorAll('.contact-method-row').length
+                    + phoneRows.querySelectorAll('.contact-method-row').length;
+        if (total >= CONTACT_METHOD_MAX) return;
+
+        const container = type === 'email' ? emailRows : phoneRows;
+        const row = document.createElement('div');
+        row.className = 'input-row contact-method-row';
+        row.style.marginBottom = '8px';
+
+        const removeBtn = `<div style="display:flex;align-items:flex-end;padding-bottom:2px">
+          <button class="icon-btn" title="Remove" onclick="removeContactMethodRow(this)">
+            <i class="fa-regular fa-trash-can"></i>
+          </button>
+        </div>`;
+
+        if (type === 'email') {
+          row.innerHTML = `
+            <div class="form-group" style="flex: 0.6">
+              <select class="form-select" disabled><option>Email</option></select>
+            </div>
+            <div class="form-group" style="flex: 1">
+              <input class="form-input" type="email" placeholder="name@company.com" />
+            </div>
+            ${removeBtn}`;
+        } else {
+          row.innerHTML = `
+            <div class="form-group" style="flex: 0.6">
+              <select class="form-select">
+                <option>Work</option>
+                <option>Home</option>
+                <option>Mobile</option>
+                <option>Fax</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 1">
+              <input class="form-input" type="tel" placeholder="(000) 000-0000" />
+            </div>
+            ${removeBtn}`;
+        }
+        container.appendChild(row);
+
+        // Hide add links if max reached
+        const newTotal = emailRows.querySelectorAll('.contact-method-row').length
+                       + phoneRows.querySelectorAll('.contact-method-row').length;
+        if (newTotal >= CONTACT_METHOD_MAX) {
+          document.querySelector('#contact-email-section .add-link').style.display = 'none';
+          document.querySelector('#contact-phone-section .add-link').style.display = 'none';
+        }
+      }
+      function removeContactMethodRow(btn) {
+        btn.closest('.contact-method-row').remove();
+        const emailRows = document.getElementById('contact-email-rows');
+        const phoneRows = document.getElementById('contact-phone-rows');
+        const total = emailRows.querySelectorAll('.contact-method-row').length
+                    + phoneRows.querySelectorAll('.contact-method-row').length;
+        if (total < CONTACT_METHOD_MAX) {
+          document.querySelector('#contact-email-section .add-link').style.display = '';
+          document.querySelector('#contact-phone-section .add-link').style.display = '';
+        }
       }
       function copyText(text) {
         navigator.clipboard
