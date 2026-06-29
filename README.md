@@ -23,3 +23,11 @@ git commit -m "Update shared design tokens"
 ```
 
 See [platinum-shared](https://github.com/hpembridge/platinum-shared) for full maintenance docs.
+
+## Planned features
+
+- general contact
+- MM logins
+- feedback flyout
+- contact import / export
+
