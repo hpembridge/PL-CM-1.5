@@ -1,4 +1,4 @@
-# PL-CM — Customer Management
+# PL-CM 1.5 — Customer Management
 
 Platinum epic: Customer Management prototype.
 
