@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Jobs — The Marriott Cleveland Downtown</title>
+  <script src="https://kit.fontawesome.com/da08280601.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="shared/css/design-tokens.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=optional"
+    rel="stylesheet">
+  <link rel="stylesheet" href="customer-management.css" />
+  <style>
+    /* ── TABLE ── */
+    .jobs-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .page-content{
+      max-width: var(--container-data);
+    }
+
+    .col-cb    { width: 48px; }
+    .col-print { width: 48px; }
+    .col-job   { width: 8%; }
+    .col-date  { width: 8%; }
+    .col-prod  { width: 20%; }
+    .col-type  { width: 20%; }
+
+    /* ── HEADER ── */
+    .jobs-table thead tr {
+      background: var(--bg-muted);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .card{
+      overflow:unset !important
+    }
+    .jobs-table th {
+      padding: 0;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      text-align: left;
+      user-select: none;
+      height: 48px;
+    }
+    .search-list-header{
+      border-radius: 8px 8px 0px 0px;
+      padding: 16px;
+      flex-direction: column;
+    }
+    .search-list-header input{
+      width: 100%;
+    }
+
+    .th-cb { padding: 0; }
+
+    .th-date {
+      text-align: right;
+      padding-right: 16px;
+    }
+
+    th.col-job{
+      padding-left: 16px;
+    }
+
+    /* ── FILTERABLE HEADER ── */
+    .th-filter {
+      padding: 0;
+      position: relative;
+    }
+
+    .th-filter-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: var(--fontsize-body-sm);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      text-align: left;
+      transition: background 0.12s, color 0.12s;
+      height: 100%;
+      width: 100%;
+    }
+
+    .th-filter-btn:hover,
+    .th-filter-btn.active {
+      color: var(--interactive-hover);
+    }
+
+    .th-filter-btn .filter-icon {
+      font-size: 9px;
+      opacity: 0.6;
+    }
+
+    .th-filter-btn.has-filter {
+      color: var(--interactive-default);
+    }
+
+    .th-filter-btn.has-filter .filter-icon {
+      opacity: 1;
+    }
+
+    /* ── FILTER DROPDOWN ── */
+    .filter-dropdown {
+      position: absolute;
+      top: 90%;
+      left: 0;
+      z-index: 200;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      min-width: 200px;
+      padding: 6px 0;
+      display: none;
+    }
+
+    .filter-dropdown.open {
+      display: block;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: background 0.1s;
+    }
+
+    .filter-option:hover {
+      background: var(--bg-muted);
+    }
+
+    .filter-option input[type="checkbox"] {
+      accent-color: var(--interactive-default);
+      cursor: pointer;
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+
+    .filter-divider {
+      border: none;
+      border-top: 1px solid var(--border-subtle);
+      margin: 4px 0;
+    }
+
+    .filter-clear {
+      display: block;
+      width: 100%;
+      padding: 6px 14px;
+      text-align: left;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .filter-clear:hover {
+      color: var(--text-primary);
+    }
+
+    /* ── DATA ROWS ── */
+    .jobs-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .jobs-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .jobs-table tbody tr.row-hidden {
+      display: none;
+    }
+
+    .jobs-table td {
+      padding: 0;
+      vertical-align: middle;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    /* ── THREE TOUCH TARGETS ── */
+
+    /* 1. Checkbox zone */
+    .cb-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      min-height: 48px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .cb-zone:hover {
+      background: var(--bg-muted);
+    }
+
+    .cb-zone input[type="checkbox"] {
+      accent-color: var(--interactive-default);
+      width: 14px;
+      height: 14px;
+      pointer-events: none;
+    }
+
+    /* 2. Navigation cells */
+    .td-job .cell-inner,
+    .td-desc .cell-inner,
+    .td-prod .cell-inner,
+    .td-type .cell-inner,
+    .td-date .cell-inner {
+      display: flex;
+      align-items: center;
+      min-height: 48px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .td-date .cell-inner {
+      justify-content: flex-end;
+      color: var(--text-tertiary);
+      font-size: 12px;
+      padding-right: 16px;
+    }
+
+    .td-job .cell-inner {
+      font-weight: 600;
+      padding-left: 16px;
+    }
+
+    /* Row hover — only nav cells light up */
+    .jobs-table tbody tr:hover .td-job .cell-inner,
+    .jobs-table tbody tr:hover .td-desc .cell-inner,
+    .jobs-table tbody tr:hover .td-prod .cell-inner,
+    .jobs-table tbody tr:hover .td-type .cell-inner,
+    .jobs-table tbody tr:hover .td-date .cell-inner {
+      background: var(--bg-muted);
+    }
+
+    /* Suppress when hovering the cb or print zones */
+    .jobs-table tbody tr:has(.cb-zone:hover) .cell-inner,
+    .jobs-table tbody tr:has(.print-zone:hover) .cell-inner {
+      background: transparent !important;
+    }
+
+    /* 3. Print zone */
+    .print-zone {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      min-height: 48px;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .print-zone:hover {
+      background: var(--bg-muted);
+    }
+
+    /* icon-btn inside print zone — pointer-events off so zone handles the click */
+    .print-zone .icon-btn {
+      pointer-events: none;
+    }
+
+    /* ── TOOLBAR ── */
+    .jobs-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 0px;
+    }
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #active-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-left: 8px;
+      width: 100%;
+    }
+    #active-filters span.empty{
+      color: var(--text-tertiary);
+      font-size: var(--fontsize-body-sm);
+    }
+
+    .filter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--interactive-bg-subtle);
+      color: var(--interactive-default);
+      border: 1px solid var(--interactive-default);
+      font-weight: 500;
+    }
+
+    .filter-badge button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: inherit;
+      font-size: 11px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ── EMPTY STATE ── */
+    .jobs-empty {
+      padding: 48px 32px;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 13px;
+    }
+
+    a.btn-secondary{
+      text-decoration: none;
+    }
+
+  </style>
+</head>
+
+<body data-theme="titanium">
+  <div class="main">
+
+    <!-- ── TOP BAR ── -->
+    <div class="topbar">
+      <div class="breadcrumb type-body-sm">
+        <a href="#"><i class="fa-regular fa-folder"></i> Jobs</a>
+        <span class="sep">›</span>
+        <a href="#">(1234) Marriott International</a>
+        <span class="sep">›</span>
+        <span class="current">(0001) The Marriott Cleveland Downtown</span>
+        <button id="search-btn" class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+      <div class="topbar-row" id="topbar-row">
+        <div class="search-container">
+          <i class="fa-regular fa-magnifying-glass"></i>
+          <input type="text" id="search-input" class="search-input" placeholder="Search jobs..." autocomplete="off" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PAGE CONTENT ── -->
+    <div class="page-content">
+      <h5>The Marriott Cleveland Downtown</h5>
+      <!-- Toolbar -->
+      <div class="jobs-toolbar">
+        <div class="toolbar-actions">
+          <button class="btn-secondary" disabled>
+            <i class="fa-regular fa-print"></i>
+            Print Job Tickets
+          </button>
+          <button class="btn-secondary" disabled>
+            <i class="fa-regular fa-layer-plus"></i>
+            Create Rollout
+          </button>
+        </div>
+        <a href="customer-detail-page.html" class="btn-secondary">
+          <i class="fa-regular fa-building"></i>
+          Manage Account
+        </a>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="display:block;">
+        <div class="search-list-header">
+          <div id="active-filters"><span class="empty">No active filters applied</span></div>
+          <input placeholder="Search Jobs..." />
+          
+        </div>
+        <table class="jobs-table">
+          <colgroup>
+            <col class="col-cb">
+            <col class="col-job">
+            <col class="col-desc">
+            <col class="col-prod">
+            <col class="col-type">
+            <col class="col-date">
+            <col class="col-print">
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="th-cb">
+                <div class="cb-zone" onclick="document.getElementById('select-all').click()">
+                  <input type="checkbox" id="select-all" title="Select all">
+                </div>
+              </th>
+              <th class="col-job">
+                <div class="th-label">Job #</div>
+              </th>
+              <th class="col-desc">
+                <div class="th-label">Description</div>
+              </th>
+
+              <!-- Production Type — filterable -->
+              <th class="th-filter" id="th-prod">
+                <button class="th-filter-btn" id="btn-filter-prod" onclick="toggleFilter('prod')" aria-haspopup="true"
+                  aria-expanded="false">
+                  Production Type
+                  <i class="fa-solid fa-chevron-down filter-icon"></i>
+                </button>
+                <div class="filter-dropdown" id="filter-prod">
+                  <label class="filter-option"><input type="checkbox" value="Bindery" onchange="applyFilter('prod')">
+                    Bindery</label>
+                  <label class="filter-option"><input type="checkbox" value="Printing" onchange="applyFilter('prod')">
+                    Printing</label>
+                  <label class="filter-option"><input type="checkbox" value="Paper" onchange="applyFilter('prod')">
+                    Paper</label>
+                  <label class="filter-option"><input type="checkbox" value="PDF Only" onchange="applyFilter('prod')">
+                    PDF Only</label>
+                  <label class="filter-option"><input type="checkbox" value="Woodshop Only"
+                      onchange="applyFilter('prod')"> Woodshop Only</label>
+                  <label class="filter-option"><input type="checkbox" value="Menu Hardware"
+                      onchange="applyFilter('prod')"> Menu Hardware</label>
+                  <hr class="filter-divider">
+                  <button class="filter-clear" onclick="clearFilter('prod')">Clear filter</button>
+                </div>
+              </th>
+
+              <!-- Job Type — filterable -->
+              <th class="th-filter" id="th-type">
+                <button class="th-filter-btn" id="btn-filter-type" onclick="toggleFilter('type')" aria-haspopup="true"
+                  aria-expanded="false">
+                  Job Type
+                  <i class="fa-solid fa-chevron-down filter-icon"></i>
+                </button>
+                <div class="filter-dropdown" id="filter-type">
+                  <label class="filter-option"><input type="checkbox" value="New Job" onchange="applyFilter('type')">
+                    New Job</label>
+                  <label class="filter-option"><input type="checkbox" value="Rerun w/ Changes"
+                      onchange="applyFilter('type')"> Rerun w/ Changes</label>
+                  <label class="filter-option"><input type="checkbox" value="Pull-Plate" onchange="applyFilter('type')">
+                    Pull-Plate</label>
+                  <label class="filter-option"><input type="checkbox" value="Inventory Release"
+                      onchange="applyFilter('type')"> Inventory Release</label>
+                  <label class="filter-option"><input type="checkbox" value="Replacement Ticket"
+                      onchange="applyFilter('type')"> Replacement Ticket</label>
+                  <hr class="filter-divider">
+                  <button class="filter-clear" onclick="clearFilter('type')">Clear filter</button>
+                </div>
+              </th>
+
+              <th>
+                <div class="th-date">Created</div>
+              </th>
+              <th class="th-print"></th>
+            </tr>
+          </thead>
+          <tbody id="jobs-tbody">
+            
+            <!-- Row 1 -->
+            <tr data-prod="Printing" data-type="New Job">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">112847</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Dinner Menu — Spring 2025 Refresh</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Printing</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">6/14/2025</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 112847)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr data-prod="Bindery" data-type="Rerun w/ Changes">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">111203</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Wine List — Revised Covers</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Bindery</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">Rerun w/ Changes</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">4/2/2025</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 111203)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr data-prod="PDF Only" data-type="Pull-Plate">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">110588</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Banquet Event Order — Q2 Template</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">PDF Only</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">Pull-Plate</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">2/19/2025</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 110588)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 4 -->
+            <tr data-prod="Menu Hardware" data-type="New Job">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">109774</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Leather Menu Covers — 8.5×11 — Qty 120</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Menu Hardware</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">1/7/2025</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 109774)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 5 -->
+            <tr data-prod="Printing" data-type="Inventory Release">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">108391</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Room Service Insert — Holiday Edition</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Printing</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">Inventory Release</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">11/30/2024</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 108391)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 6 -->
+            <tr data-prod="Woodshop Only" data-type="Replacement Ticket">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">107055</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Wooden Menu Board — Lobby Display</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Woodshop Only</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">Replacement Ticket</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">9/18/2024</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 107055)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 7 -->
+            <tr data-prod="Paper" data-type="New Job">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">106528</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">1 Sample Two Panel Aluminum Cover With 4 Views</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Paper</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">8/3/2005</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 106528)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 8 -->
+            <tr data-prod="Bindery" data-type="New Job">
+              <td class="td-cb">
+                <div class="cb-zone" onclick="toggleRowCheck(this)">
+                  <input type="checkbox" class="row-cb">
+                </div>
+              </td>
+              <td class="td-job">
+                <div class="cell-inner" onclick="goToJob()">106308</div>
+              </td>
+              <td class="td-desc">
+                <div class="cell-inner" onclick="goToJob()">Two Panel Aluminum Cover With 4 Views</div>
+              </td>
+              <td class="td-prod">
+                <div class="cell-inner" onclick="goToJob()">Bindery</div>
+              </td>
+              <td class="td-type">
+                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              </td>
+              <td class="td-date">
+                <div class="cell-inner" onclick="goToJob()">7/25/2005</div>
+              </td>
+              <td class="td-print">
+                <div class="print-zone" onclick="printRow(event, 106308)" title="Print job ticket">
+                  <button class="icon-btn" tabindex="-1"><i class="fa-regular fa-print"></i></button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <div class="jobs-empty" id="jobs-empty" style="display:none">
+          No jobs match the current filters.
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main -->
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── Navigation ──
+    const JOB_DETAIL_URL = 'https://hpembridge.github.io/PL-JM-1.25/job-detail-page.html';
+    function goToJob() {
+      window.location.href = JOB_DETAIL_URL;
+    }
+
+    // ── Print ──
+    function printRow(e, jobNum) {
+      e.stopPropagation();
+      showToast('Printing ticket for job #' + jobNum + '…');
+    }
+
+    // ── Toast ──
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = '✓  ' + msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+
+    // ── Checkbox zone ──
+    function toggleRowCheck(zone) {
+      const cb = zone.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      syncSelectAll();
+    }
+    document.getElementById('select-all').addEventListener('change', function () {
+      const visible = Array.from(document.querySelectorAll('#jobs-tbody tr:not(.row-hidden) .row-cb'));
+      visible.forEach(cb => cb.checked = this.checked);
+    });
+    function syncSelectAll() {
+      const all = document.querySelectorAll('#jobs-tbody tr:not(.row-hidden) .row-cb');
+      const checked = document.querySelectorAll('#jobs-tbody tr:not(.row-hidden) .row-cb:checked');
+      const sa = document.getElementById('select-all');
+      sa.checked = all.length > 0 && checked.length === all.length;
+      sa.indeterminate = checked.length > 0 && checked.length < all.length;
+    }
+
+    // ── Search ──
+    document.getElementById('search-input').addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
+      document.querySelectorAll('#jobs-tbody tr').forEach(row => {
+        const desc = row.querySelector('.td-desc')?.textContent.toLowerCase() || '';
+        const job = row.querySelector('.td-job')?.textContent.toLowerCase() || '';
+        row.dataset.searchHide = (q && !desc.includes(q) && !job.includes(q)) ? '1' : '';
+        applyVisibility(row);
+      });
+      checkEmpty();
+    });
+
+    // ── Topbar scroll hide ──
+    const mainEl = document.querySelector('.main');
+    const topbarRow = document.getElementById('topbar-row');
+    let lastScroll = 0;
+    mainEl.addEventListener('scroll', () => {
+      const curr = mainEl.scrollTop;
+      if (Math.abs(curr - lastScroll) < 10) return;
+      topbarRow.classList.toggle('hidden', curr > lastScroll);
+      lastScroll = curr;
+    });
+    document.getElementById('search-btn').addEventListener('click', () => {
+      topbarRow.classList.remove('hidden');
+    });
+
+    // ── Filter state ──
+    const filterState = { prod: new Set(), type: new Set() };
+
+    function toggleFilter(key) {
+      const dropdown = document.getElementById('filter-' + key);
+      const btn = document.getElementById('btn-filter-' + key);
+      const isOpen = dropdown.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+      document.querySelectorAll('.th-filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded', 'false'); });
+
+      if (!isOpen) {
+        dropdown.classList.add('open');
+        btn.classList.add('active');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.th-filter')) {
+        document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.th-filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded', 'false'); });
+      }
+    });
+
+    function applyFilter(key) {
+      const checks = document.querySelectorAll('#filter-' + key + ' input[type="checkbox"]');
+      filterState[key].clear();
+      checks.forEach(cb => { if (cb.checked) filterState[key].add(cb.value); });
+
+      const btn = document.getElementById('btn-filter-' + key);
+      btn.classList.toggle('has-filter', filterState[key].size > 0);
+
+      document.querySelectorAll('#jobs-tbody tr').forEach(row => {
+        applyVisibility(row);
+      });
+
+      updateFilterBadges();
+      checkEmpty();
+      syncSelectAll();
+    }
+
+    function applyVisibility(row) {
+      const prodMatch = filterState.prod.size === 0 || filterState.prod.has(row.dataset.prod);
+      const typeMatch = filterState.type.size === 0 || filterState.type.has(row.dataset.type);
+      const searchHide = row.dataset.searchHide === '1';
+      row.classList.toggle('row-hidden', !prodMatch || !typeMatch || searchHide);
+    }
+
+    function clearFilter(key) {
+      document.querySelectorAll('#filter-' + key + ' input[type="checkbox"]').forEach(cb => cb.checked = false);
+      applyFilter(key);
+      document.getElementById('filter-' + key).classList.remove('open');
+      document.getElementById('btn-filter-' + key).classList.remove('active');
+    }
+
+    function updateFilterBadges() {
+      const container = document.getElementById('active-filters');
+      const hasFilters = ['prod', 'type'].some(k => filterState[k].size > 0);
+
+      container.innerHTML = hasFilters ? '' : '<span class="empty">No active filters applied</span>';
+
+      if (hasFilters) {
+        ['prod', 'type'].forEach(key => {
+          if (filterState[key].size > 0) {
+            const label = key === 'prod' ? 'Production' : 'Job Type';
+            const values = [...filterState[key]].join(', ');
+            const badge = document.createElement('span');
+            badge.className = 'filter-badge';
+            badge.innerHTML = `${label}: ${values} <button onclick="clearFilter('${key}')" title="Clear"><i class="fa-solid fa-xmark"></i></button>`;
+            container.appendChild(badge);
+          }
+        });
+      }
+    }
+
+    function checkEmpty() {
+      const visible = document.querySelectorAll('#jobs-tbody tr:not(.row-hidden)');
+      document.getElementById('jobs-empty').style.display = visible.length === 0 ? '' : 'none';
+    }
+  </script>
+  <script src="feedback-flyout.js"></script>
+</body>
+
+</html>

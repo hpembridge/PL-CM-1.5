@@ -1029,6 +1029,14 @@ body {
   margin-bottom: 0;
 }
 
+/* ── DISABLED BUTTONS ── */
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* ── SUCCESS TOAST ── */
 .toast {
   position: fixed;

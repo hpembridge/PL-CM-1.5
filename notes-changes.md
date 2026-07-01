@@ -1,3 +1,5 @@
+-[ ] add mm login/pass to modal
+
 ### General Contact
 - appears at the top of the contacts list
 - selected by default on page load
