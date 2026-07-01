@@ -14,6 +14,10 @@
 ### feedback flyout
 - i want this to be a generalized component we can throw on any page with a link to a survey
 - for right now i have smartsheets in there but maybe custom html form / formspree is a better option?
+
+### All jobs 
+- this is the multi-ticket print page, redesigned
+- its got some additional functionality and a face-lift
 ### import/export contacts
 - we left this off of the initial round due to template concerns but this is how i imagine this should work: https://docs.google.com/spreadsheets/d/1zTnEZmK_VjR25VJW3iWF8oQxxnBwTIbIBj73b0FKoNU/edit?gid=0#gid=0
 - if we need to update the spreadsheet validation to immediately hard stop if the columns are not correct, lets do that
