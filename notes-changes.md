@@ -1,5 +1,5 @@
--[ ] add mm login/pass to modal
-
+### Healey's To-Do List
+- [ ] add mm login/pass to modal
 ### General Contact
 - appears at the top of the contacts list
 - selected by default on page load
@@ -9,12 +9,10 @@
 - it also should show a "Menumaker Customer" pill in the .acct-tags
 
 - the way i imagine this toggle would work with existing data is that if there are any internet logins, that toggle would be set to true
-	- would we be able to do that if this toggle doesnt currently exist in gold? like... if there is a password, set it to true on page load. then the user can set it to true and add a password which would set it to true the next time the page is loaded?
-	- its FINE if we cant have my beautiful toggle, adding mm logins would just be available for any contact for anyone
+	- there are certain flags that will not have a column in the gold database (ie lamination, round corners) - these should be purely for visibility
 ### feedback flyout
 - i want this to be a generalized component we can throw on any page with a link to a survey
 - for right now i have smartsheets in there but maybe custom html form / formspree is a better option?
-
 ### All jobs 
 - this is the multi-ticket print page, redesigned
 - its got some additional functionality and a face-lift
