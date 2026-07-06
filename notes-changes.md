@@ -1,21 +1,21 @@
-### Healey's To-Do List
-- [ ] add mm login/pass to modal
 ### General Contact
 - appears at the top of the contacts list
 - selected by default on page load
 - fields: main phone, main fax, website
 ### MM logins
-- the way i have it set up right now is that we have a toggle for "Menumaker Customer" in the general tab that shows the MM login and MM password field on contacts
-- it also should show a "Menumaker Customer" pill in the .acct-tags
-
-- the way i imagine this toggle would work with existing data is that if there are any internet logins, that toggle would be set to true
-	- there are certain flags that will not have a column in the gold database (ie lamination, round corners) - these should be purely for visibility
+- Menumaker customer toggle - does not exist in gold. fine if we want to omit this, but it is visual only so maybe it doesnt need to?
 ### feedback flyout
 - i want this to be a generalized component we can throw on any page with a link to a survey
-- for right now i have smartsheets in there but maybe custom html form / formspree is a better option?
-### All jobs 
-- this is the multi-ticket print page, redesigned
-- its got some additional functionality and a face-lift
+- for right now it is specific to any customer page
+### Customer Jobs page
+the page you land on when you click the view jobs button
+- this replaces the current multi-ticket print page
+- additions: 
+	- filtering by job and production type
+	- print button on every row
+	- link back to customer page
 ### import/export contacts
-- we left this off of the initial round due to template concerns but this is how i imagine this should work: https://docs.google.com/spreadsheets/d/1zTnEZmK_VjR25VJW3iWF8oQxxnBwTIbIBj73b0FKoNU/edit?gid=0#gid=0
-- if we need to update the spreadsheet validation to immediately hard stop if the columns are not correct, lets do that
+- template: https://docs.google.com/spreadsheets/d/1zTnEZmK_VjR25VJW3iWF8oQxxnBwTIbIBj73b0FKoNU/edit?gid=0#gid=0
+- i need to make some updates to the validation screen to better handle addresses--thinking about a dropdown?
+## Styling Updates
+- last item in the list gets a rounded bottom right corner. i had to do that with js but im sure there is a better way to handle that

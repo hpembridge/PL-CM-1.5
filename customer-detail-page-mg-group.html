@@ -1443,7 +1443,7 @@
         const pill = document.getElementById('menumaker-pill');
         if (pill) pill.hidden = !on;
         const section = document.getElementById('menumaker-section');
-        if (section) section.hidden = !on;
+        if (section) section.style.display = on ? '' : 'none';
         const field = document.getElementById('menumaker-field');
         if (field) field.hidden = !on;
         // Re-stamp last-visible on contact fields after menumaker visibility change

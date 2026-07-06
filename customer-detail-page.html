@@ -171,7 +171,7 @@
                   <span class="contact-detail-name type-body-md semibold">General Contact Information</span>
                 </div>
                 <div class="contact-actions">
-                  <button class="icon-btn" onclick="openModal('addContact')" title="Edit General Info">
+                  <button class="icon-btn" onclick="openModal('addContact')" title="Edit General Information">
                     <i class="fa-solid fa-pen"></i>
                   </button>
                 </div>
@@ -481,7 +481,7 @@
               <span class="toggle-label">Active Customer</span>
               <div class="toggle"></div>
             </div>
-            <div class="toggle-row" id="menumaker-toggle" onclick="toggleMenumaker(this)">
+            <div class="toggle-row on" id="menumaker-toggle" onclick="toggleMenumaker(this)">
               <span class="toggle-label">Menumaker Customer</span>
               <div class="toggle"></div>
             </div>
@@ -1087,7 +1087,7 @@
         const pill = document.getElementById('menumaker-pill');
         if (pill) pill.hidden = !on;
         const section = document.getElementById('menumaker-section');
-        if (section) section.hidden = !on;
+        if (section) section.style.display = on ? '' : 'none';
         const field = document.getElementById('menumaker-field');
         if (field) field.hidden = !on;
         // Re-stamp last-visible on contact fields after menumaker visibility change
