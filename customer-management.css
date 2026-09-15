@@ -254,6 +254,10 @@ body {
   display: flex;
   gap: 12px;
 }
+.acct-actions {
+  display: flex;
+  gap: 12px;
+}
     .acct-info{
   display: flex;
   flex-direction: column;
