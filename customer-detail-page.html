@@ -1241,6 +1241,16 @@
         updateLastVisible(c, '.contact-field')
       );
 
+      // ── Deep link: ?open=<modalId> auto-opens a modal on load ──
+      // Used by the "Create Jobs and Customers" index page's
+      // "View Billing Details" link (?open=editBilling).
+      (function () {
+        const modalId = new URLSearchParams(window.location.search).get('open');
+        if (modalId && document.getElementById('modal-' + modalId)) {
+          openModal(modalId);
+        }
+      })();
+
     </script>
     <script src="feedback-flyout.js"></script>
   </body>
