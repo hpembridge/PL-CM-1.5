@@ -1,0 +1,230 @@
+/* ============================================================
+   Filter bar — filter pills + active-filter chips
+   ------------------------------------------------------------
+   Same pattern as the Inventory Quantity Upgrade property
+   filters (Inventory Quantity Upgrade/components/catalog-filters).
+   One button per filterable property, each opening a short
+   checkbox popover. A chip row below lists every active value
+   so it can be removed in one click.
+
+   Angular: FilterBar → @for over filter definitions, each a
+   FilterMenu (owns its open state + popover). FilterChips is a
+   sibling reading the same filter state.
+
+   Local tokens (not in PL-SHARED — flagged, not proposed):
+   --shadow-popover   PL-SHARED's --shadow-panel is cut for a
+                      right-hand flyout and reads wrong under a
+                      dropdown. Same value as the inventory copy.
+   --duration-filter  the inventory copy uses --duration-fast,
+                      which does not exist in this repo's tokens.
+   ============================================================ */
+:root {
+  --shadow-popover: 0 4px 16px rgb(from var(--color-black) r g b / .18);
+  --duration-filter: 0.12s;
+}
+
+/* ── Filter bar ─────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--scale-200);
+}
+
+/* ── One filter menu: button + popover ─────────────────────── */
+.filter-menu {
+  position: relative;
+  display: inline-flex;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--scale-200);
+  height: var(--scale-800);
+  padding: 0 var(--scale-300);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--fontsize-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+.filter-btn:hover {
+  background: var(--interactive-bg-subtle);
+  border-color: var(--interactive-default);
+}
+.filter-btn.is-active {
+  border-color: var(--interactive-default);
+  background: var(--interactive-bg-subtle);
+  color: var(--interactive-default);
+}
+.filter-btn .filter-caret {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  transition: transform var(--duration-filter);
+}
+.filter-menu.is-open .filter-caret { transform: rotate(180deg); }
+
+/* Number of values selected in this filter */
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--scale-500);
+  height: var(--scale-500);
+  padding: 0 var(--scale-100);
+  border-radius: var(--border-radius-full);
+  background: var(--interactive-default);
+  color: var(--color-white);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ── The popover ────────────────────────────────────────────── */
+.filter-popover {
+  position: absolute;
+  top: calc(100% + var(--scale-100));
+  left: 0;
+  z-index: 30;
+  width: 280px;
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-popover);
+}
+.filter-popover[hidden] { display: none; }
+
+/* Search inside a popover — only on long lists (Job Status) */
+.filter-popover-search {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-200);
+  padding: var(--scale-300) var(--scale-300) var(--scale-200);
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.filter-popover-search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--fontsize-body-sm);
+  color: var(--text-primary);
+}
+.filter-popover-search input:focus { outline: none; }
+.filter-popover-search input::placeholder { color: var(--text-tertiary); }
+
+.filter-popover-actions {
+  display: flex;
+  gap: var(--scale-300);
+  padding: var(--scale-200) var(--scale-300);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Text-style button: Select all / Clear / Clear all */
+.filter-link {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--text-interactive);
+  font-family: inherit;
+  font-size: var(--fontsize-body-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+.filter-link:hover { text-decoration: underline; }
+
+.filter-popover-list {
+  overflow-y: auto;
+  padding: var(--scale-100) 0;
+}
+.filter-popover-empty {
+  padding: var(--scale-300);
+  color: var(--text-tertiary);
+  font-size: var(--fontsize-body-sm);
+}
+
+/* One checkbox row */
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: var(--scale-200);
+  padding: var(--scale-100) var(--scale-300);
+  cursor: pointer;
+}
+.filter-option[hidden] { display: none; }
+.filter-option:hover { background: var(--bg-subtle); }
+.filter-option input[type="checkbox"] {
+  width: var(--scale-400);
+  height: var(--scale-400);
+  accent-color: var(--interactive-default);
+  flex: 0 0 auto;
+}
+.filter-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fontsize-body-sm);
+  color: var(--text-primary);
+}
+/* Rows matching this value if every OTHER filter stayed as is */
+.filter-option-count {
+  flex: 0 0 auto;
+  color: var(--text-tertiary);
+  font-size: var(--fontsize-body-sm);
+  font-variant-numeric: tabular-nums;
+}
+.filter-option.is-zero { opacity: .45; }
+
+/* ── Active filter chips ───────────────────────────────────── */
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--scale-200);
+}
+.filter-chips[hidden] { display: none; }
+
+/* Chip styles copied from Inventory Quantity Upgrade/inventory.css
+   (.chip, .chip.removable, .chip-x) so this page doesn't depend on
+   that prototype's stylesheet. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--scale-200);
+  height: 30px;
+  padding: 0 var(--scale-300);
+  border-radius: var(--border-radius-sm);
+  background: var(--bg-subtle);
+  border: 1px solid transparent;
+  font-size: var(--fontsize-body-sm);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+.chip .chip-label { color: var(--text-tertiary); }
+.chip .chip-value { color: var(--text-primary); font-weight: var(--font-weight-medium); }
+
+.chip.removable {
+  background: var(--bg-surface);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+.chip.removable .chip-label { color: var(--text-primary); }
+
+.chip-x {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  font-size: var(--fontsize-body-sm);
+  padding: 0 0 0 var(--scale-100);
+  line-height: 1;
+}
+.chip-x:hover { color: var(--text-primary); }

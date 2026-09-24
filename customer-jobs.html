@@ -12,6 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,wght@6..144,1..1000&display=optional"
     rel="stylesheet">
   <link rel="stylesheet" href="customer-management.css" />
+  <link rel="stylesheet" href="components/filter-bar/filter-bar.css" />
   <style>
     /* ── TABLE ── */
     .jobs-table {
@@ -28,8 +29,8 @@
     .col-print { width: 48px; }
     .col-job   { width: 8%; }
     .col-date  { width: 8%; }
-    .col-prod  { width: 20%; }
-    .col-type  { width: 20%; }
+    .col-status { width: 20%; }
+    .col-sched  { width: 18%; }
 
     /* ── HEADER ── */
     .jobs-table thead tr {
@@ -54,6 +55,15 @@
       border-radius: 8px 8px 0px 0px;
       padding: 16px;
       flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    /* The shared .search-list-header input rule would otherwise restyle
+       the search box inside the Job Status popover */
+    .search-list-header .filter-popover-search input {
+      border: none;
+      padding: 0;
+      background: transparent;
     }
     .search-list-header input{
       width: 100%;
@@ -68,111 +78,6 @@
 
     th.col-job{
       padding-left: 16px;
-    }
-
-    /* ── FILTERABLE HEADER ── */
-    .th-filter {
-      padding: 0;
-      position: relative;
-    }
-
-    .th-filter-btn {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: var(--fontsize-body-sm);
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--text-tertiary);
-      text-align: left;
-      transition: background 0.12s, color 0.12s;
-      height: 100%;
-      width: 100%;
-    }
-
-    .th-filter-btn:hover,
-    .th-filter-btn.active {
-      color: var(--interactive-hover);
-    }
-
-    .th-filter-btn .filter-icon {
-      font-size: 9px;
-      opacity: 0.6;
-    }
-
-    .th-filter-btn.has-filter {
-      color: var(--interactive-default);
-    }
-
-    .th-filter-btn.has-filter .filter-icon {
-      opacity: 1;
-    }
-
-    /* ── FILTER DROPDOWN ── */
-    .filter-dropdown {
-      position: absolute;
-      top: 90%;
-      left: 0;
-      z-index: 200;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-default);
-      border-radius: 6px;
-      min-width: 200px;
-      padding: 6px 0;
-      display: none;
-    }
-
-    .filter-dropdown.open {
-      display: block;
-    }
-
-    .filter-option {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 14px;
-      font-size: 13px;
-      cursor: pointer;
-      color: var(--text-primary);
-      transition: background 0.1s;
-    }
-
-    .filter-option:hover {
-      background: var(--bg-muted);
-    }
-
-    .filter-option input[type="checkbox"] {
-      accent-color: var(--interactive-default);
-      cursor: pointer;
-      width: 13px;
-      height: 13px;
-      flex-shrink: 0;
-    }
-
-    .filter-divider {
-      border: none;
-      border-top: 1px solid var(--border-subtle);
-      margin: 4px 0;
-    }
-
-    .filter-clear {
-      display: block;
-      width: 100%;
-      padding: 6px 14px;
-      text-align: left;
-      font-size: 12px;
-      color: var(--text-tertiary);
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .filter-clear:hover {
-      color: var(--text-primary);
     }
 
     /* ── DATA ROWS ── */
@@ -222,8 +127,8 @@
     /* 2. Navigation cells */
     .td-job .cell-inner,
     .td-desc .cell-inner,
-    .td-prod .cell-inner,
-    .td-type .cell-inner,
+    .td-status .cell-inner,
+    .td-sched .cell-inner,
     .td-date .cell-inner {
       display: flex;
       align-items: center;
@@ -247,8 +152,8 @@
     /* Row hover — only nav cells light up */
     .jobs-table tbody tr:hover .td-job .cell-inner,
     .jobs-table tbody tr:hover .td-desc .cell-inner,
-    .jobs-table tbody tr:hover .td-prod .cell-inner,
-    .jobs-table tbody tr:hover .td-type .cell-inner,
+    .jobs-table tbody tr:hover .td-status .cell-inner,
+    .jobs-table tbody tr:hover .td-sched .cell-inner,
     .jobs-table tbody tr:hover .td-date .cell-inner {
       background: var(--bg-muted);
     }
@@ -292,41 +197,31 @@
       gap: 10px;
     }
 
-    #active-filters {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-left: 8px;
-      width: 100%;
-    }
-    #active-filters span.empty{
-      color: var(--text-tertiary);
-      font-size: var(--fontsize-body-sm);
-    }
-
-    .filter-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      padding: 3px 8px;
-      border-radius: 20px;
-      background: var(--interactive-bg-subtle);
-      color: var(--interactive-default);
-      border: 1px solid var(--interactive-default);
-      font-weight: 500;
+    /* ── STATUS PILLS ──
+       Job Status = current scan location (latest Activity Log entry),
+       shown as a neutral .pill (PL-SHARED).
+       Scheduling Request Status colours:
+         Needs Approval → .pill-error (local, below — PL-SHARED has no
+                          error pill; uses the existing --status-error tokens)
+         Pending Review → .pill-warn  (PL-SHARED; warning tokens are copper,
+                          which is the closest thing to gold in the system)
+         Shipping date  → .pill-success (PL-SHARED) */
+    .pill-error {
+      background: var(--status-error-bg);
+      border: 1px solid var(--status-error-border);
+      color: var(--text-primary);
     }
 
-    .filter-badge button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      color: inherit;
-      font-size: 11px;
-      line-height: 1;
-      display: flex;
-      align-items: center;
+    .status-pill {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .td-status .cell-inner,
+    .td-sched .cell-inner {
+      padding-right: 12px;
     }
 
     /* ── EMPTY STATE ── */
@@ -385,18 +280,136 @@
 
       <!-- Table -->
       <div class="card" style="display:block;">
+        <!-- ══ Search + Filter Bar ═════════════════════════════════
+             Filter pills replace the old header-cell dropdowns. Same
+             pattern as Inventory Quantity Upgrade's property filters.
+             HTML: this block + #filterChipTemplate below
+             CSS:  components/filter-bar/filter-bar.css
+             JS:   "Filter bar" section of the page script
+             Angular: FilterBar component, @for over the four filter
+             definitions; options @for over each filter's values.
+             ───────────────────────────────────────────────────────── -->
         <div class="search-list-header">
-          <div id="active-filters"><span class="empty">No active filters applied</span></div>
           <input placeholder="Search Jobs..." />
-          
+
+          <div class="filter-bar">
+
+            <!-- FilterMenu: Production Type -->
+            <div class="filter-menu" data-filter="prod">
+              <button class="filter-btn" type="button" aria-expanded="false" aria-controls="filter-pop-prod">
+                <span>Production Type</span>
+                <span class="filter-count" hidden></span>
+                <i class="fa-regular fa-chevron-down filter-caret"></i>
+              </button>
+              <div class="filter-popover" id="filter-pop-prod" hidden>
+                <div class="filter-popover-actions">
+                  <button class="filter-link" type="button" data-filter-all>Select all</button>
+                  <button class="filter-link" type="button" data-filter-none>Clear</button>
+                </div>
+                <div class="filter-popover-list">
+                  <label class="filter-option"><input type="checkbox" value="Bindery" /><span class="filter-option-label">Bindery</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Menu Hardware" /><span class="filter-option-label">Menu Hardware</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Paper" /><span class="filter-option-label">Paper</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="PDF Only" /><span class="filter-option-label">PDF Only</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Printing" /><span class="filter-option-label">Printing</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Woodshop Only" /><span class="filter-option-label">Woodshop Only</span><span class="filter-option-count"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- FilterMenu: Job Type -->
+            <div class="filter-menu" data-filter="type">
+              <button class="filter-btn" type="button" aria-expanded="false" aria-controls="filter-pop-type">
+                <span>Job Type</span>
+                <span class="filter-count" hidden></span>
+                <i class="fa-regular fa-chevron-down filter-caret"></i>
+              </button>
+              <div class="filter-popover" id="filter-pop-type" hidden>
+                <div class="filter-popover-actions">
+                  <button class="filter-link" type="button" data-filter-all>Select all</button>
+                  <button class="filter-link" type="button" data-filter-none>Clear</button>
+                </div>
+                <div class="filter-popover-list">
+                  <label class="filter-option"><input type="checkbox" value="Inventory Release" /><span class="filter-option-label">Inventory Release</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="New Job" /><span class="filter-option-label">New Job</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Pull-Plate" /><span class="filter-option-label">Pull-Plate</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Replacement Ticket" /><span class="filter-option-label">Replacement Ticket</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Rerun w/ Changes" /><span class="filter-option-label">Rerun w/ Changes</span><span class="filter-option-count"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- FilterMenu: Job Status
+                 Options = the distinct current scan locations across this
+                 customer's jobs (latest Activity Log entry per job). Any
+                 scan location can appear, so this list gets a search box. -->
+            <div class="filter-menu" data-filter="status">
+              <button class="filter-btn" type="button" aria-expanded="false" aria-controls="filter-pop-status">
+                <span>Job Status</span>
+                <span class="filter-count" hidden></span>
+                <i class="fa-regular fa-chevron-down filter-caret"></i>
+              </button>
+              <div class="filter-popover" id="filter-pop-status" hidden>
+                <div class="filter-popover-search">
+                  <i class="fa-regular fa-magnifying-glass"></i>
+                  <input type="text" placeholder="Search scan locations" autocomplete="off" data-filter-search />
+                </div>
+                <div class="filter-popover-actions">
+                  <button class="filter-link" type="button" data-filter-all>Select all</button>
+                  <button class="filter-link" type="button" data-filter-none>Clear</button>
+                </div>
+                <div class="filter-popover-list">
+                  <label class="filter-option"><input type="checkbox" value="Bindery Metal" /><span class="filter-option-label">Bindery Metal</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Bindery On Cart" /><span class="filter-option-label">Bindery On Cart</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Jordan S - Proof Out" /><span class="filter-option-label">Jordan S - Proof Out</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Leather Ordered" /><span class="filter-option-label">Leather Ordered</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Paper on Order" /><span class="filter-option-label">Paper on Order</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Proof Out" /><span class="filter-option-label">Proof Out</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Shipped" /><span class="filter-option-label">Shipped</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Woodshop CNC" /><span class="filter-option-label">Woodshop CNC</span><span class="filter-option-count"></span></label>
+                  <div class="filter-popover-empty" data-filter-empty hidden>No scan locations match.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FilterMenu: Scheduling Request Status
+                 "Shipping" filters every job with a ship date; the date
+                 itself only shows on the row pill. -->
+            <div class="filter-menu" data-filter="sched">
+              <button class="filter-btn" type="button" aria-expanded="false" aria-controls="filter-pop-sched">
+                <span>Scheduling Request Status</span>
+                <span class="filter-count" hidden></span>
+                <i class="fa-regular fa-chevron-down filter-caret"></i>
+              </button>
+              <div class="filter-popover" id="filter-pop-sched" hidden>
+                <div class="filter-popover-actions">
+                  <button class="filter-link" type="button" data-filter-all>Select all</button>
+                  <button class="filter-link" type="button" data-filter-none>Clear</button>
+                </div>
+                <div class="filter-popover-list">
+                  <label class="filter-option"><input type="checkbox" value="Needs Approval" /><span class="filter-option-label">Needs Approval</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Pending Review" /><span class="filter-option-label">Pending Review</span><span class="filter-option-count"></span></label>
+                  <label class="filter-option"><input type="checkbox" value="Shipping" /><span class="filter-option-label">Shipping</span><span class="filter-option-count"></span></label>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /filter-bar -->
+
+          <!-- FilterChips: one removable chip per selected value -->
+          <div class="filter-chips" id="filter-chips" hidden>
+            <button class="filter-link" type="button" id="filter-clear-all">Clear all</button>
+          </div>
         </div>
+        <!-- ══ end Search + Filter Bar ══════════════════════════════ -->
+
         <table class="jobs-table">
           <colgroup>
             <col class="col-cb">
             <col class="col-job">
             <col class="col-desc">
-            <col class="col-prod">
-            <col class="col-type">
+            <col class="col-status">
+            <col class="col-sched">
             <col class="col-date">
             <col class="col-print">
           </colgroup>
@@ -414,52 +427,11 @@
                 <div class="th-label">Description</div>
               </th>
 
-              <!-- Production Type — filterable -->
-              <th class="th-filter" id="th-prod">
-                <button class="th-filter-btn" id="btn-filter-prod" onclick="toggleFilter('prod')" aria-haspopup="true"
-                  aria-expanded="false">
-                  Production Type
-                  <i class="fa-solid fa-chevron-down filter-icon"></i>
-                </button>
-                <div class="filter-dropdown" id="filter-prod">
-                  <label class="filter-option"><input type="checkbox" value="Bindery" onchange="applyFilter('prod')">
-                    Bindery</label>
-                  <label class="filter-option"><input type="checkbox" value="Printing" onchange="applyFilter('prod')">
-                    Printing</label>
-                  <label class="filter-option"><input type="checkbox" value="Paper" onchange="applyFilter('prod')">
-                    Paper</label>
-                  <label class="filter-option"><input type="checkbox" value="PDF Only" onchange="applyFilter('prod')">
-                    PDF Only</label>
-                  <label class="filter-option"><input type="checkbox" value="Woodshop Only"
-                      onchange="applyFilter('prod')"> Woodshop Only</label>
-                  <label class="filter-option"><input type="checkbox" value="Menu Hardware"
-                      onchange="applyFilter('prod')"> Menu Hardware</label>
-                  <hr class="filter-divider">
-                  <button class="filter-clear" onclick="clearFilter('prod')">Clear filter</button>
-                </div>
+              <th class="col-status">
+                <div class="th-label">Job Status</div>
               </th>
-
-              <!-- Job Type — filterable -->
-              <th class="th-filter" id="th-type">
-                <button class="th-filter-btn" id="btn-filter-type" onclick="toggleFilter('type')" aria-haspopup="true"
-                  aria-expanded="false">
-                  Job Type
-                  <i class="fa-solid fa-chevron-down filter-icon"></i>
-                </button>
-                <div class="filter-dropdown" id="filter-type">
-                  <label class="filter-option"><input type="checkbox" value="New Job" onchange="applyFilter('type')">
-                    New Job</label>
-                  <label class="filter-option"><input type="checkbox" value="Rerun w/ Changes"
-                      onchange="applyFilter('type')"> Rerun w/ Changes</label>
-                  <label class="filter-option"><input type="checkbox" value="Pull-Plate" onchange="applyFilter('type')">
-                    Pull-Plate</label>
-                  <label class="filter-option"><input type="checkbox" value="Inventory Release"
-                      onchange="applyFilter('type')"> Inventory Release</label>
-                  <label class="filter-option"><input type="checkbox" value="Replacement Ticket"
-                      onchange="applyFilter('type')"> Replacement Ticket</label>
-                  <hr class="filter-divider">
-                  <button class="filter-clear" onclick="clearFilter('type')">Clear filter</button>
-                </div>
+              <th class="col-sched">
+                <div class="th-label">Scheduling Request</div>
               </th>
 
               <th>
@@ -471,7 +443,7 @@
           <tbody id="jobs-tbody">
             
             <!-- Row 1 -->
-            <tr data-prod="Printing" data-type="New Job">
+            <tr data-prod="Printing" data-type="New Job" data-status="Proof Out" data-sched="Pending Review">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -483,11 +455,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Dinner Menu — Spring 2025 Refresh</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Printing</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Proof Out">Proof Out</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-warn">Pending Review</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">6/14/2025</div>
@@ -500,7 +472,7 @@
             </tr>
 
             <!-- Row 2 -->
-            <tr data-prod="Bindery" data-type="Rerun w/ Changes">
+            <tr data-prod="Bindery" data-type="Rerun w/ Changes" data-status="Bindery On Cart" data-sched="Shipping">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -512,11 +484,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Wine List — Revised Covers</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Bindery</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Bindery On Cart">Bindery On Cart</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">Rerun w/ Changes</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-success">Shipping 07/18/2025</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">4/2/2025</div>
@@ -529,7 +501,7 @@
             </tr>
 
             <!-- Row 3 -->
-            <tr data-prod="PDF Only" data-type="Pull-Plate">
+            <tr data-prod="PDF Only" data-type="Pull-Plate" data-status="Jordan S - Proof Out" data-sched="Needs Approval">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -541,11 +513,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Banquet Event Order — Q2 Template</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">PDF Only</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Jordan S - Proof Out">Jordan S - Proof Out</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">Pull-Plate</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-error">Needs Approval</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">2/19/2025</div>
@@ -558,7 +530,7 @@
             </tr>
 
             <!-- Row 4 -->
-            <tr data-prod="Menu Hardware" data-type="New Job">
+            <tr data-prod="Menu Hardware" data-type="New Job" data-status="Leather Ordered" data-sched="Pending Review">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -570,11 +542,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Leather Menu Covers — 8.5×11 — Qty 120</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Menu Hardware</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Leather Ordered">Leather Ordered</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-warn">Pending Review</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">1/7/2025</div>
@@ -587,7 +559,7 @@
             </tr>
 
             <!-- Row 5 -->
-            <tr data-prod="Printing" data-type="Inventory Release">
+            <tr data-prod="Printing" data-type="Inventory Release" data-status="Shipped" data-sched="Shipping">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -599,11 +571,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Room Service Insert — Holiday Edition</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Printing</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Shipped">Shipped</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">Inventory Release</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-success">Shipping 12/12/2024</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">11/30/2024</div>
@@ -616,7 +588,7 @@
             </tr>
 
             <!-- Row 6 -->
-            <tr data-prod="Woodshop Only" data-type="Replacement Ticket">
+            <tr data-prod="Woodshop Only" data-type="Replacement Ticket" data-status="Woodshop CNC" data-sched="Needs Approval">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -628,11 +600,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Wooden Menu Board — Lobby Display</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Woodshop Only</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Woodshop CNC">Woodshop CNC</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">Replacement Ticket</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-error">Needs Approval</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">9/18/2024</div>
@@ -645,7 +617,7 @@
             </tr>
 
             <!-- Row 7 -->
-            <tr data-prod="Paper" data-type="New Job">
+            <tr data-prod="Paper" data-type="New Job" data-status="Paper on Order" data-sched="Pending Review">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -657,11 +629,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">1 Sample Two Panel Aluminum Cover With 4 Views</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Paper</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Paper on Order">Paper on Order</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-warn">Pending Review</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">8/3/2005</div>
@@ -674,7 +646,7 @@
             </tr>
 
             <!-- Row 8 -->
-            <tr data-prod="Bindery" data-type="New Job">
+            <tr data-prod="Bindery" data-type="New Job" data-status="Bindery Metal" data-sched="Shipping">
               <td class="td-cb">
                 <div class="cb-zone" onclick="toggleRowCheck(this)">
                   <input type="checkbox" class="row-cb">
@@ -686,11 +658,11 @@
               <td class="td-desc">
                 <div class="cell-inner" onclick="goToJob()">Two Panel Aluminum Cover With 4 Views</div>
               </td>
-              <td class="td-prod">
-                <div class="cell-inner" onclick="goToJob()">Bindery</div>
+              <td class="td-status">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill" title="Bindery Metal">Bindery Metal</span></div>
               </td>
-              <td class="td-type">
-                <div class="cell-inner" onclick="goToJob()">New Job</div>
+              <td class="td-sched">
+                <div class="cell-inner" onclick="goToJob()"><span class="pill status-pill pill-success">Shipping 08/15/2005</span></div>
               </td>
               <td class="td-date">
                 <div class="cell-inner" onclick="goToJob()">7/25/2005</div>
@@ -712,6 +684,20 @@
 
     </div><!-- /page-content -->
   </div><!-- /main -->
+
+  <!-- ══ Filter chip template ═════════════════════════════════
+       Cloned by the "Filter bar" script — one per selected value.
+       Angular: @for over active filter values inside FilterChips.
+       ─────────────────────────────────────────────────────────── -->
+  <template id="filterChipTemplate">
+    <span class="chip removable" data-filter-chip>
+      <span class="chip-label" data-chip-label></span>
+      <span class="chip-value" data-chip-value></span>
+      <button class="chip-x" type="button" data-chip-remove aria-label="Remove filter">
+        <i class="fa-regular fa-xmark"></i>
+      </button>
+    </span>
+  </template>
 
   <!-- Toast -->
   <div class="toast" id="toast"></div>
@@ -764,6 +750,7 @@
         row.dataset.searchHide = (q && !desc.includes(q) && !job.includes(q)) ? '1' : '';
         applyVisibility(row);
       });
+      refreshCounts();
       checkEmpty();
     });
 
@@ -781,88 +768,169 @@
       topbarRow.classList.remove('hidden');
     });
 
-    // ── Filter state ──
-    const filterState = { prod: new Set(), type: new Set() };
+    // ── Filter bar ──────────────────────────────────────────────
+    // Prototype only. In Angular: filterState becomes component state
+    // (e.g. a signal of { key: Set<string> }), the open menu is local
+    // state on each FilterMenu, row visibility is a computed filtered
+    // list driving the table's @for, and option counts are computed
+    // from that same list.
+    const FILTER_LABELS = {
+      prod: 'Production Type',
+      type: 'Job Type',
+      status: 'Job Status',
+      sched: 'Scheduling Request',
+    };
+    const filterState = { prod: new Set(), type: new Set(), status: new Set(), sched: new Set() };
+    const filterMenus = document.querySelectorAll('.filter-menu');
+    const chipsEl = document.getElementById('filter-chips');
+    const chipTemplate = document.getElementById('filterChipTemplate');
+    let openMenu = null;
 
-    function toggleFilter(key) {
-      const dropdown = document.getElementById('filter-' + key);
-      const btn = document.getElementById('btn-filter-' + key);
-      const isOpen = dropdown.classList.contains('open');
-
-      // Close all
-      document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
-      document.querySelectorAll('.th-filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded', 'false'); });
-
-      if (!isOpen) {
-        dropdown.classList.add('open');
-        btn.classList.add('active');
-        btn.setAttribute('aria-expanded', 'true');
-      }
+    // Does this row pass every filter, optionally ignoring one?
+    function rowMatches(row, ignoreKey) {
+      return Object.keys(filterState).every(key =>
+        key === ignoreKey || filterState[key].size === 0 || filterState[key].has(row.dataset[key]));
     }
 
-    // Close dropdowns on outside click
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.th-filter')) {
-        document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('open'));
-        document.querySelectorAll('.th-filter-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-expanded', 'false'); });
-      }
-    });
+    function applyVisibility(row) {
+      const searchHide = row.dataset.searchHide === '1';
+      row.classList.toggle('row-hidden', !rowMatches(row) || searchHide);
+    }
 
-    function applyFilter(key) {
-      const checks = document.querySelectorAll('#filter-' + key + ' input[type="checkbox"]');
-      filterState[key].clear();
-      checks.forEach(cb => { if (cb.checked) filterState[key].add(cb.value); });
-
-      const btn = document.getElementById('btn-filter-' + key);
-      btn.classList.toggle('has-filter', filterState[key].size > 0);
-
-      document.querySelectorAll('#jobs-tbody tr').forEach(row => {
-        applyVisibility(row);
+    // Counts are cross-filtered: each option shows how many rows it would
+    // return with every OTHER filter (and the search) left as is.
+    function refreshCounts() {
+      const rows = [...document.querySelectorAll('#jobs-tbody tr')];
+      filterMenus.forEach(menu => {
+        const key = menu.dataset.filter;
+        menu.querySelectorAll('.filter-option').forEach(opt => {
+          const cb = opt.querySelector('input');
+          const n = rows.filter(r => r.dataset.searchHide !== '1' && rowMatches(r, key) && r.dataset[key] === cb.value).length;
+          opt.querySelector('.filter-option-count').textContent = n;
+          opt.classList.toggle('is-zero', n === 0 && !cb.checked);
+        });
       });
+    }
 
-      updateFilterBadges();
+    function refreshButtons() {
+      filterMenus.forEach(menu => {
+        const n = filterState[menu.dataset.filter].size;
+        const badge = menu.querySelector('.filter-count');
+        badge.hidden = n === 0;
+        badge.textContent = n;
+        menu.querySelector('.filter-btn').classList.toggle('is-active', n > 0);
+      });
+    }
+
+    function renderChips() {
+      chipsEl.querySelectorAll('[data-filter-chip]').forEach(c => c.remove());
+      const clearAll = document.getElementById('filter-clear-all');
+      let any = false;
+      Object.keys(filterState).forEach(key => {
+        filterState[key].forEach(value => {
+          any = true;
+          const chip = chipTemplate.content.firstElementChild.cloneNode(true);
+          chip.querySelector('[data-chip-label]').textContent = FILTER_LABELS[key] + ':';
+          chip.querySelector('[data-chip-value]').textContent = value;
+          chip.querySelector('[data-chip-remove]').addEventListener('click', () => setValue(key, value, false));
+          chipsEl.insertBefore(chip, clearAll);
+        });
+      });
+      chipsEl.hidden = !any;
+    }
+
+    // Single entry point for every filter change
+    function setValue(key, value, on) {
+      if (on) filterState[key].add(value); else filterState[key].delete(value);
+      const cb = document.querySelector('.filter-menu[data-filter="' + key + '"] input[value="' + CSS.escape(value) + '"]');
+      if (cb) cb.checked = on;
+      refresh();
+    }
+
+    function refresh() {
+      document.querySelectorAll('#jobs-tbody tr').forEach(applyVisibility);
+      refreshButtons();
+      refreshCounts();
+      renderChips();
       checkEmpty();
       syncSelectAll();
     }
 
-    function applyVisibility(row) {
-      const prodMatch = filterState.prod.size === 0 || filterState.prod.has(row.dataset.prod);
-      const typeMatch = filterState.type.size === 0 || filterState.type.has(row.dataset.type);
-      const searchHide = row.dataset.searchHide === '1';
-      row.classList.toggle('row-hidden', !prodMatch || !typeMatch || searchHide);
+    function closeMenu() {
+      if (!openMenu) return;
+      openMenu.classList.remove('is-open');
+      openMenu.querySelector('.filter-popover').hidden = true;
+      openMenu.querySelector('.filter-btn').setAttribute('aria-expanded', 'false');
+      openMenu = null;
     }
 
-    function clearFilter(key) {
-      document.querySelectorAll('#filter-' + key + ' input[type="checkbox"]').forEach(cb => cb.checked = false);
-      applyFilter(key);
-      document.getElementById('filter-' + key).classList.remove('open');
-      document.getElementById('btn-filter-' + key).classList.remove('active');
+    function openMenuFor(menu) {
+      closeMenu();
+      menu.classList.add('is-open');
+      menu.querySelector('.filter-popover').hidden = false;
+      menu.querySelector('.filter-btn').setAttribute('aria-expanded', 'true');
+      openMenu = menu;
+      const search = menu.querySelector('[data-filter-search]');
+      if (search) { search.value = ''; searchOptions(menu, ''); search.focus(); }
     }
 
-    function updateFilterBadges() {
-      const container = document.getElementById('active-filters');
-      const hasFilters = ['prod', 'type'].some(k => filterState[k].size > 0);
+    // Search within a popover's option list (Job Status only)
+    function searchOptions(menu, q) {
+      let shown = 0;
+      menu.querySelectorAll('.filter-option').forEach(opt => {
+        const hit = opt.textContent.toLowerCase().includes(q.toLowerCase().trim());
+        opt.hidden = !hit;
+        if (hit) shown++;
+      });
+      const empty = menu.querySelector('[data-filter-empty]');
+      if (empty) empty.hidden = shown > 0;
+    }
 
-      container.innerHTML = hasFilters ? '' : '<span class="empty">No active filters applied</span>';
+    filterMenus.forEach(menu => {
+      const key = menu.dataset.filter;
+      menu.querySelector('.filter-btn').addEventListener('click', () => {
+        if (openMenu === menu) closeMenu(); else openMenuFor(menu);
+      });
+      menu.querySelectorAll('.filter-option input').forEach(cb => {
+        cb.addEventListener('change', () => setValue(key, cb.value, cb.checked));
+      });
+      // Select all / Clear act on the options currently visible
+      menu.querySelector('[data-filter-all]').addEventListener('click', () => {
+        menu.querySelectorAll('.filter-option:not([hidden]) input').forEach(cb => { cb.checked = true; filterState[key].add(cb.value); });
+        refresh();
+      });
+      menu.querySelector('[data-filter-none]').addEventListener('click', () => {
+        menu.querySelectorAll('.filter-option:not([hidden]) input').forEach(cb => { cb.checked = false; filterState[key].delete(cb.value); });
+        refresh();
+      });
+      const search = menu.querySelector('[data-filter-search]');
+      if (search) search.addEventListener('input', () => searchOptions(menu, search.value));
+    });
 
-      if (hasFilters) {
-        ['prod', 'type'].forEach(key => {
-          if (filterState[key].size > 0) {
-            const label = key === 'prod' ? 'Production' : 'Job Type';
-            const values = [...filterState[key]].join(', ');
-            const badge = document.createElement('span');
-            badge.className = 'filter-badge';
-            badge.innerHTML = `${label}: ${values} <button onclick="clearFilter('${key}')" title="Clear"><i class="fa-solid fa-xmark"></i></button>`;
-            container.appendChild(badge);
-          }
-        });
+    document.getElementById('filter-clear-all').addEventListener('click', () => {
+      Object.values(filterState).forEach(set => set.clear());
+      document.querySelectorAll('.filter-option input').forEach(cb => cb.checked = false);
+      refresh();
+    });
+
+    // Light dismiss: outside click or Escape
+    document.addEventListener('click', e => {
+      if (openMenu && !openMenu.contains(e.target)) closeMenu();
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && openMenu) {
+        const btn = openMenu.querySelector('.filter-btn');
+        closeMenu();
+        btn.focus();
       }
-    }
+    });
 
     function checkEmpty() {
       const visible = document.querySelectorAll('#jobs-tbody tr:not(.row-hidden)');
       document.getElementById('jobs-empty').style.display = visible.length === 0 ? '' : 'none';
     }
+
+    refresh();
   </script>
   <script src="feedback-flyout.js"></script>
 </body>
