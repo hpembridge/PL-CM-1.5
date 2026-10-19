@@ -468,12 +468,21 @@
             />
           </div>
           <div class="form-group">
-            <label class="form-label">Customer Short Name</label>
-            <input
-              class="form-input"
-              placeholder="ex. Sunrise Grill"
-              value="Marriott Downtown"
-            />
+            <div class="form-row form-row-2">
+              <div>
+                <label class="form-label" for="account-short-name">Customer Short Name</label>
+                <input
+                  class="form-input"
+                  id="account-short-name"
+                  placeholder="ex. Sunrise Grill"
+                  value="Marriott Downtown"
+                />
+              </div>
+              <div>
+                <label class="form-label" for="account-alternate-id">Alternate ID</label>
+                <input class="form-input" type="text" id="account-alternate-id" />
+              </div>
+            </div>
           </div>
 
           <div class="toggle-grid">
@@ -578,6 +587,23 @@
             <div class="toggle-row on" onclick="this.classList.toggle('on')">
               <span class="toggle-label">Tax Exempt</span>
               <div class="toggle"></div>
+            </div>
+          </div>
+
+          <!-- Sales Tax -->
+          <div class="form-group">
+            <div class="form-row form-row-2">
+              <div>
+                <label class="form-label" for="billing-sales-tax-code">Sales Tax Code</label>
+                <input class="form-input" type="text" id="billing-sales-tax-code" />
+              </div>
+              <div>
+                <label class="form-label" for="billing-sales-tax-rate">Sales Tax Rate</label>
+                <div class="prefix-input">
+                  <span>%</span>
+                  <input type="number" id="billing-sales-tax-rate" step="0.001" placeholder="0.00" />
+                </div>
+              </div>
             </div>
           </div>
 
